@@ -1,6 +1,6 @@
-package net.ivangouba.examplemod.item;
+package net.ivangouba.tutorialdos.item;
 
-import net.ivangouba.examplemod.TutorialDos;
+import net.ivangouba.tutorialdos.TutorialDos;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
