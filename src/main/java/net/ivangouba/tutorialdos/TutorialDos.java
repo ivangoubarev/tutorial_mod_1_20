@@ -2,6 +2,7 @@ package net.ivangouba.tutorialdos;
 
 import com.mojang.logging.LogUtils;
 import net.ivangouba.tutorialdos.block.ModBlocks;
+import net.ivangouba.tutorialdos.block.entity.ModBlockEntities;
 import net.ivangouba.tutorialdos.item.ModItems;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.api.distmarker.Dist;
@@ -32,6 +33,7 @@ public class TutorialDos
 
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
+        ModBlockEntities.register(modEventBus);
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
