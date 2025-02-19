@@ -4,6 +4,10 @@ import com.mojang.logging.LogUtils;
 import net.ivangouba.tutorialdos.block.ModBlocks;
 import net.ivangouba.tutorialdos.block.entity.ModBlockEntities;
 import net.ivangouba.tutorialdos.item.ModItems;
+import net.ivangouba.tutorialdos.screen.MaceratorScreen;
+import net.ivangouba.tutorialdos.screen.ModMenuTypes;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
@@ -34,6 +38,7 @@ public class TutorialDos
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModBlockEntities.register(modEventBus);
+        ModMenuTypes.register(modEventBus);
 
         // Register the commonSetup method for modloading
         modEventBus.addListener(this::commonSetup);
@@ -59,6 +64,9 @@ public class TutorialDos
         if(event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
             event.accept(ModBlocks.ELECTRICAL_COPPER);
         }
+        if(event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
+            event.accept(ModBlocks.MACERATOR);
+        }
     }
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call
@@ -74,6 +82,7 @@ public class TutorialDos
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
+            MenuScreens.register(ModMenuTypes.MACERATOR_MENU.get(), MaceratorScreen::new);
         }
     }
 }

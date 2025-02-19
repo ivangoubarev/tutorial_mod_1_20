@@ -1,5 +1,8 @@
 package net.ivangouba.tutorialdos.block.entity;
 
+import net.ivangouba.tutorialdos.block.ModBlocks;
+import net.ivangouba.tutorialdos.item.ModItems;
+import net.ivangouba.tutorialdos.screen.MaceratorMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -11,6 +14,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -96,8 +102,8 @@ public class MaceratorBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     @Override
-    public @Nullable AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        return
+    public @Nullable AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
+        return new MaceratorMenu(pContainerId, pPlayerInventory, this, this.data);
     }
 
     @Override
@@ -112,5 +118,54 @@ public class MaceratorBlockEntity extends BlockEntity implements MenuProvider {
         super.load(pTag);
         itemHandler.deserializeNBT(pTag.getCompound("inventory"));
         progress = pTag.getInt("macerator.progress");
+    }
+
+    public void tick(Level pLevel, BlockPos pPos, BlockState pState) {
+        if(hasRecipe()) {
+            increaseCraftingProgress();
+            setChanged(pLevel, pPos, pState);
+
+            if(hasProgressfinished()) {
+                craftItem();
+                resetProgress();
+            }
+        } else {
+            resetProgress();
+        }
+    }
+
+    private void resetProgress() {
+        progress = 0;
+    }
+
+    private void craftItem() {
+        ItemStack result = new ItemStack(ModItems.COPPER_DUST.get(), 2);
+        this.itemHandler.extractItem(INPUT_SLOT, 1, false);
+
+        this.itemHandler.setStackInSlot(OUTPUT_SLOT, new ItemStack(result.getItem(),
+                this.itemHandler.getStackInSlot(OUTPUT_SLOT).getCount() + result.getCount()));
+    }
+
+    private boolean hasProgressfinished() {
+        return progress >= maxProgress;
+    }
+
+    private void increaseCraftingProgress() {
+        progress++;
+    }
+
+    private boolean hasRecipe() {
+        boolean hasCraftingItem = this.itemHandler.getStackInSlot(INPUT_SLOT).getItem() == ModBlocks.ELECTRICAL_COPPER.get().asItem();
+        ItemStack result = new ItemStack(ModItems.COPPER_DUST.get());
+
+        return hasCraftingItem && canInsertAmountIntoOutputSlot(result.getCount()) && canInsertItemIntoOutputSlot(result.getItem());
+    }
+
+    private boolean canInsertItemIntoOutputSlot(Item item) {
+        return this.itemHandler.getStackInSlot(OUTPUT_SLOT).isEmpty() || this.itemHandler.getStackInSlot(OUTPUT_SLOT).is(item);
+    }
+
+    private boolean canInsertAmountIntoOutputSlot(int count) {
+        return this.itemHandler.getStackInSlot(OUTPUT_SLOT).getCount() + count <= this.itemHandler.getStackInSlot(OUTPUT_SLOT).getMaxStackSize();
     }
 }
