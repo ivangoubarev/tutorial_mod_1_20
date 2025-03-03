@@ -3,6 +3,7 @@ package net.ivangouba.tutorialdos.block.entity;
 import net.ivangouba.tutorialdos.block.ModBlocks;
 import net.ivangouba.tutorialdos.item.ModItems;
 import net.ivangouba.tutorialdos.screen.MaceratorMenu;
+import net.ivangouba.tutorialdos.util.ModEnergyStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
@@ -36,10 +38,20 @@ public class MaceratorBlockEntity extends BlockEntity implements MenuProvider {
     private static final int OUTPUT_SLOT = 1;
 
     private LazyOptional<IItemHandler> lazyItemHandler = LazyOptional.empty();
+    private LazyOptional<IEnergyStorage> lazyEnergyHandler = LazyOptional.empty();
 
     protected final ContainerData data;
     private int progress = 0;
     private int maxProgress = 78;
+
+    private final ModEnergyStorage ENERGY_STORAGE = new ModEnergyStorage(60000, 256) {
+        @Override
+        public void onEnergyChanged() {
+            setChanged();
+        }
+    };
+
+    private static final int ENERGY_REQ = 32;
 
     public MaceratorBlockEntity(BlockPos pPos, BlockState pBlockState) {
         super(ModBlockEntities.MACERATOR_BE.get(), pPos, pBlockState);
@@ -68,10 +80,14 @@ public class MaceratorBlockEntity extends BlockEntity implements MenuProvider {
         };
     }
 
+
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
         if(cap == ForgeCapabilities.ITEM_HANDLER) {
             return lazyItemHandler.cast();
+        }
+        if(cap == ForgeCapabilities.ENERGY) {
+            return lazyEnergyHandler.cast();
         }
         return super.getCapability(cap, side);
     }
@@ -80,12 +96,14 @@ public class MaceratorBlockEntity extends BlockEntity implements MenuProvider {
     public void onLoad() {
         super.onLoad();
         lazyItemHandler = LazyOptional.of(() -> itemHandler);
+        lazyEnergyHandler = LazyOptional.of(() -> ENERGY_STORAGE);
     }
 
     @Override
     public void invalidateCaps() {
         super.invalidateCaps();
         lazyItemHandler.invalidate();
+        lazyEnergyHandler.invalidate();
     }
 
     public void drops() {
@@ -110,6 +128,7 @@ public class MaceratorBlockEntity extends BlockEntity implements MenuProvider {
     protected void saveAdditional(CompoundTag pTag) {
         pTag.put("inventory", itemHandler.serializeNBT());
         pTag.putInt("macerator.progress", progress);
+        pTag.putInt("macerator.energy", ENERGY_STORAGE.getEnergyStored());
         super.saveAdditional(pTag);
     }
 
@@ -118,6 +137,7 @@ public class MaceratorBlockEntity extends BlockEntity implements MenuProvider {
         super.load(pTag);
         itemHandler.deserializeNBT(pTag.getCompound("inventory"));
         progress = pTag.getInt("macerator.progress");
+        ENERGY_STORAGE.setEnergy(pTag.getInt("macerator.energy"));
     }
 
     public void tick(Level pLevel, BlockPos pPos, BlockState pState) {

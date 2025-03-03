@@ -19,6 +19,16 @@ public class ModBlockEntities {
                     BlockEntityType.Builder.of(MaceratorBlockEntity::new,
                             ModBlocks.MACERATOR.get()).build(null));
 
+    public static final RegistryObject<BlockEntityType<GeneratorBlockEntity>> GENERATOR_BE =
+            BLOCK_ENTITIES.register("generator_block", () ->
+                    BlockEntityType.Builder.of(GeneratorBlockEntity::new,
+                            ModBlocks.GENERATOR_BLOCK.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<CableBlockEntity>> CABLE_BE =
+            BLOCK_ENTITIES.register("cable_block", () ->
+                    BlockEntityType.Builder.of(CableBlockEntity::new,
+                            ModBlocks.CABLE_BLOCK.get()).build(null));
+
     public static void register(IEventBus eventbus) {
         BLOCK_ENTITIES.register(eventbus);
     }

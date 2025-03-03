@@ -1,6 +1,8 @@
 package net.ivangouba.tutorialdos.block;
 
 import net.ivangouba.tutorialdos.TutorialDos;
+import net.ivangouba.tutorialdos.block.custom.CableBlock;
+import net.ivangouba.tutorialdos.block.custom.GeneratorBlock;
 import net.ivangouba.tutorialdos.block.custom.MaceratorBlock;
 import net.ivangouba.tutorialdos.item.ModItems;
 import net.minecraft.world.item.BlockItem;
@@ -25,6 +27,12 @@ public class ModBlocks {
 
     public static final RegistryObject<Block> MACERATOR = registerblock("macerator",
             () -> new MaceratorBlock(BlockBehaviour.Properties.copy(Blocks.COBBLESTONE)));
+
+    public static final RegistryObject<Block> GENERATOR_BLOCK = registerblock("generator_block",
+            () -> new GeneratorBlock(BlockBehaviour.Properties.copy(Blocks.COBBLESTONE)));
+
+    public static final RegistryObject<Block> CABLE_BLOCK = registerblock("cable_block",
+            () -> new CableBlock(BlockBehaviour.Properties.copy(Blocks.COBBLESTONE)));
 
     private static <T extends Block> RegistryObject<T> registerblock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
