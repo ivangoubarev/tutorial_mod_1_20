@@ -1,5 +1,6 @@
 package net.ivangouba.tutorialdos.block.entity;
 
+import net.ivangouba.tutorialdos.util.ElectricNetworkManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,6 +30,22 @@ public class CableBlockEntity extends BlockEntity {
     public void load(CompoundTag pTag) {
         super.load(pTag);
         voltage = pTag.getDouble("Voltage");
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if(!level.isClientSide) {
+            ElectricNetworkManager.get(level).addNode(worldPosition, this);
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        if(!level.isClientSide) {
+            ElectricNetworkManager.get(level).removeNode(worldPosition);
+        }
     }
 
     @Override
